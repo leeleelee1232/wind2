@@ -1,0 +1,4 @@
+[[headers]]
+  for = "/wind-korea.json"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
