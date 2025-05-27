@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>전국 바람 시각화</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body, #map { height: 100%; margin: 0; padding: 0; }
+    .wind-legend {
+      position: fixed; bottom: 20px; right: 20px; z-index: 1000;
+      background: white; padding: 10px; border-radius: 5px;
+      font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      line-height: 1.6;
+    }
+    .wind-legend .color-box {
+      display: inline-block; width: 16px; height: 10px; margin-right: 6px;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <div class="wind-legend">
+    <strong>바람 세기 (m/s)</strong><br />
+    <div><span class="color-box" style="background:#0000ff"></span> 0 - 4</div>
+    <div><span class="color-box" style="background:#00ffff"></span> 4 - 8</div>
+    <div><span class="color-box" style="background:#00ff00"></span> 8 - 12</div>
+    <div><span class="color-box" style="background:#ffff00"></span> 12 - 16</div>
+    <div><span class="color-box" style="background:#ff0000"></span> 16 이상</div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-velocity/dist/leaflet-velocity.min.js"></script>
+
+  <script>
+    const map = L.map('map').setView([36.5, 127.8], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    fetch('wind-korea.json')
+      .then(response => response.json())
+      .then(data => {
+        const velocityLayer = L.velocityLayer({
+          displayValues: true,
+          displayOptions: {
+            velocityType: '바람',
+            position: 'bottomleft',
+            emptyString: '데이터 없음',
+            angleConvention: 'bearingCW',
+            speedUnit: 'm/s'
+          },
+          data: data,
+          maxVelocity: 20,
+          velocityScale: 0.01,
+          colorScale: ['#0000ff', '#00ffff', '#00ff00', '#ffff00', '#ff0000']
+        });
+        velocityLayer.addTo(map);
+      })
+      .catch(error => {
+        console.error('바람 데이터 불러오기 실패:', error);
+      });
+  </script>
+</body>
+</html>
